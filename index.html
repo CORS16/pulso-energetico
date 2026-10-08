@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PULSO Energy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<!-- Big Shoulders Display, Archivo e IBM Plex Mono: logo e rótulos desenhados no canvas. Rubik Spray Paint: títulos. Barlow Condensed: números. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik+Spray+Paint&family=Barlow+Condensed:wght@700&family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<!-- Switzer (Fontshare): textos, menu, botões e legendas -->
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap">
+<style>
+/* Layout: lata 3D fixa no fundo; cada sabor é uma tela de scroll com o texto do lado oposto à lata (no celular, lata em cima e texto embaixo). */
+:root{
+  --bg:#d6e5ee;          /* gelo: muda via script a cada seção */
+  --ink:#0c1a24;         /* tinta: acompanha o fundo */
+  --frost:#f4fbff;       /* branco gelado */
+  --steel:#1f6f8b;       /* azul aço do hero */
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif; /* só o logo */
+  --spray:"Rubik Spray Paint","Barlow Condensed",Impact,sans-serif;   /* títulos, nomes dos sabores e frases de destaque */
+  --head:"Barlow Condensed","Arial Narrow",Impact,sans-serif;          /* números dos dados e ingredientes */
+  --body:"Switzer","Archivo","Helvetica Neue",Arial,sans-serif;        /* textos, menu, botões e legendas */
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--body);font-size:16px;line-height:1.55;
+  touch-action:pan-y;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+#scene{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+
+/* barra */
+.bar{
+  position:fixed;top:0;left:0;right:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:calc(14px + env(safe-area-inset-top,0px)) clamp(16px,4vw,56px) 14px;
+  color:var(--ink);
+}
+.brand{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;
+  font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:.06em}
+.brand svg{width:44px;height:20px;flex:none}
+.bar nav{display:flex;gap:clamp(12px,2.4vw,28px)}
+.bar nav a{color:inherit;text-decoration:none;font-family:var(--body);font-weight:500;font-size:12px;
+  text-transform:uppercase;letter-spacing:.02em;opacity:.8;padding-block:6px;border-bottom:1px solid transparent}
+.bar nav a:hover,.bar nav a:focus-visible{opacity:1;border-bottom-color:currentColor;outline:none}
+
+/* seções */
+main{position:relative;z-index:1}
+section{
+  position:relative;min-height:100vh;min-height:100svh;
+  display:grid;align-items:center;
+  padding-inline:clamp(16px,6vw,96px);padding-block:110px 72px;
+}
+.copy{max-width:31rem;min-width:0;display:grid;gap:18px}
+.txt-left .copy{justify-self:start}
+.txt-right .copy{justify-self:end}
+
+.eyebrow{margin:0;font-family:var(--body);font-weight:600;font-size:12px;letter-spacing:.02em;text-transform:uppercase;
+  color:var(--acc,var(--steel));display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+h1,h2{margin:0;font-family:var(--spray);font-weight:400;text-transform:uppercase;
+  line-height:.86;letter-spacing:.005em;text-wrap:balance}
+/* tamanhos limitados para a palavra mais longa caber no bloco de texto (fonte de spray é bem mais larga) */
+h1{font-size:clamp(36px,11.5vw,112px)}
+h2{font-size:clamp(46px,14.5vw,82px)}
+h2 small{display:block;font-family:var(--body);font-size:.34em;font-weight:600;letter-spacing:.02em;line-height:1.1;margin-top:.35em;color:var(--acc)}
+.lead{margin:0;font-size:clamp(17px,1.6vw,20px);max-width:28rem;text-wrap:pretty}
+.punch{margin:0;font-family:var(--spray);font-weight:400;font-size:clamp(24px,2.4vw,32px);
+  text-transform:uppercase;letter-spacing:.02em;line-height:1.05;text-wrap:balance}
+
+.stats{margin:6px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;
+  border-top:1px solid color-mix(in srgb,var(--ink) 22%,transparent)}
+.stats div{padding-top:12px;min-width:0}
+.stats dt{font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.02em;text-transform:uppercase;opacity:.7}
+.stats dd{margin:2px 0 0;font-family:var(--head);font-weight:700;font-size:clamp(30px,3vw,40px);
+  line-height:1;font-variant-numeric:tabular-nums}
+
+.hint{display:inline-flex;align-items:center;gap:10px;font-family:var(--body);font-weight:500;font-size:12px;
+  letter-spacing:.02em;text-transform:uppercase;opacity:.75;margin:0}
+.hint svg{width:28px;height:14px}
+.cta{justify-self:start;display:inline-flex;align-items:center;gap:12px;
+  font-family:var(--body);font-weight:600;font-size:20px;letter-spacing:.02em;text-transform:uppercase;
+  color:var(--frost);background:var(--ink);text-decoration:none;padding:14px 22px;border-radius:999px}
+.cta:hover{transform:translateY(-1px)}
+.cta:focus-visible{outline:3px solid var(--acc,var(--steel));outline-offset:3px}
+
+/* dentro da lata */
+/* a seção fica mais longa e o conteúdo fica preso na tela enquanto a lata desmonta em etapas */
+#dentro{display:block;min-height:0;height:260vh;padding:0}
+.dentro-pin{position:sticky;top:0;height:100vh;height:100svh;display:grid;grid-template-rows:auto 1fr auto auto;align-items:start;gap:24px;
+  padding-inline:clamp(16px,6vw,96px);padding-block:110px 72px}
+#dentro .copy{max-width:36rem}
+
+/* tabela nutricional */
+.nutri{max-width:22rem}
+.nutri summary{cursor:pointer;font-family:var(--body);font-weight:600;font-size:12px;letter-spacing:.02em;text-transform:uppercase;
+  color:var(--acc);list-style:none;display:inline-flex;align-items:center;gap:8px;padding-block:4px}
+.nutri summary::-webkit-details-marker{display:none}
+.nutri summary::before{content:"";width:0;height:0;border-left:6px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .2s}
+.nutri[open] summary::before{transform:rotate(90deg)}
+.nutri summary:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px}
+.nutri table{width:100%;margin-top:8px;border-collapse:collapse;font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums}
+.nutri caption{caption-side:bottom;text-align:left;font-size:11px;opacity:.65;padding-top:8px}
+.nutri th,.nutri td{padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--ink) 16%,transparent);text-align:right;font-weight:400}
+.nutri th[scope="row"]{text-align:left;font-weight:500}
+.nutri thead th{font-weight:600;font-size:11px;letter-spacing:.02em;text-transform:uppercase;opacity:.75}
+.nutri td + td,.nutri th + th{padding-left:14px}
+
+@media (max-height:859px){
+  .nutri table{position:absolute;z-index:3;width:min(22rem,calc(100vw - 32px));padding:12px 14px;border-radius:12px;
+    background:var(--bg);border:1px solid color-mix(in srgb,var(--ink) 20%,transparent)}
+}
+/* etiquetas ligadas às peças da lata desmontada */
+.callouts{position:fixed;inset:0;z-index:1;pointer-events:none;color:var(--ink)}
+.callouts svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.callouts path{fill:none;stroke:currentColor;stroke-width:1;opacity:.55}
+.callouts circle{fill:currentColor}
+.callout{position:absolute;left:0;top:0;max-width:15rem;padding:8px 12px 9px;border-radius:10px;opacity:0;will-change:transform,opacity;
+  border:1px solid color-mix(in srgb,var(--ink) 22%,transparent);background:color-mix(in srgb,var(--bg) 72%,transparent);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.callout b{display:block;font-family:var(--head);font-weight:700;font-size:20px;line-height:1;text-transform:uppercase;letter-spacing:.02em}
+.callout span{display:block;font-size:13px;line-height:1.3;margin-top:4px;opacity:.85}
+.chips{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-self:end}
+.chips li{min-width:0;padding:16px 16px 18px;border:1px solid color-mix(in srgb,var(--ink) 25%,transparent);
+  border-radius:14px;background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.chips b{display:block;font-family:var(--head);font-weight:700;font-size:clamp(30px,3vw,42px);line-height:1;font-variant-numeric:tabular-nums}
+.chips span{display:block;font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.02em;text-transform:uppercase;opacity:.75;margin-top:8px}
+.chips em{display:block;font-style:normal;font-weight:500;font-size:13px;opacity:.8;margin-top:4px}
+.warning{margin:0;font-size:12px;opacity:.7;max-width:40rem;grid-column:1/-1}
+
+/* linha completa */
+#linha{grid-template-rows:auto 1fr auto;align-items:start;gap:24px}
+#linha .copy{justify-self:center;text-align:center;max-width:40rem}
+#linha .eyebrow{justify-content:center}
+.picker{align-self:end;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:min(100%,60rem);justify-self:center}
+.picker a{min-width:0;display:grid;gap:4px;justify-items:center;text-align:center;text-decoration:none;color:var(--ink);
+  padding:14px 8px;border-radius:14px;border:1px solid color-mix(in srgb,var(--ink) 20%,transparent);transition:background .2s,border-color .2s}
+.picker a .sw{width:14px;height:14px;border-radius:50%;background:var(--sw)}
+.picker a strong{font-family:var(--spray);font-weight:400;font-size:22px;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.picker a span{font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.02em;text-transform:uppercase;opacity:.7}
+.picker a:hover,.picker a:focus-visible,.picker a.on{background:color-mix(in srgb,var(--sw) 22%,transparent);border-color:var(--sw);outline:none}
+
+footer{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
+  padding:28px clamp(16px,6vw,96px) calc(28px + env(safe-area-inset-bottom,0px));
+  font-size:13px;border-top:1px solid color-mix(in srgb,var(--ink) 18%,transparent)}
+footer p{margin:0;opacity:.75}
+
+/* celular: lata em cima, texto embaixo */
+@media (max-width:760px),(max-aspect-ratio:9/10){
+  section{align-items:end;padding-block:96px 36px}
+  .txt-left .copy,.txt-right .copy{justify-self:stretch;max-width:none}
+  .copy{gap:12px}
+  .chips{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #dentro,#linha{align-items:start}
+  .dentro-pin{align-items:start;padding-block:96px 28px;gap:10px}
+  #dentro .chips{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  #dentro .chips li{padding:10px 8px 11px;border-radius:10px}
+  #dentro .chips b{font-size:19px}
+  #dentro .chips span{margin-top:5px;font-size:10px}
+  #dentro .chips em{display:none}
+  .nutri table{position:absolute;left:16px;right:16px;z-index:3;width:auto;padding:12px 14px;border-radius:12px;
+    background:var(--bg);border:1px solid color-mix(in srgb,var(--ink) 20%,transparent)}
+  .callout{max-width:9.5rem;padding:6px 9px 7px}
+  .callout b{font-size:15px}
+  .callout span{font-size:11px}
+}
+@media (max-width:480px){
+  .bar nav{display:none}
+  .stats dd{font-size:28px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <a class="brand" href="#topo" aria-label="PULSO, voltar ao topo">
+    <svg viewBox="0 0 44 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M1 12h11l3-6 4 12 4-16 4 10h16"/></svg>
+    PULSO
+  </a>
+  <nav aria-label="Seções">
+    <a href="#original">Sabores</a>
+    <a href="#dentro">Dentro da lata</a>
+    <a href="#linha">Linha</a>
+  </nav>
+</header>
+
+<div class="callouts" id="callouts">
+  <svg aria-hidden="true"></svg>
+  <div class="callout" data-part="tampa"><b>Tampa</b><span>Anel abre-fácil · alumínio 100% reciclável</span></div>
+  <div class="callout" data-part="liquido"><b>Líquido</b><span>Gaseificado · servir a 2 °C</span></div>
+  <div class="callout" data-part="corpo"><b>Corpo</b><span>269 ml · alumínio fino e leve</span></div>
+  <div class="callout" data-part="fundo"><b>Fundo</b><span>Base côncava que aguenta a pressão do gás</span></div>
+</div>
+
+<main id="story">
+  <section id="topo" class="txt-left" style="--acc:#1f6f8b">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Energy drink · 269 ml · servir a 2 °C</p>
+      <h1>Sangue frio.<br>Pulso alto.</h1>
+      <p class="lead">Energético gelado pra quem dropa a rampa, desce a montanha e rema pra onda que todo mundo deixou passar.</p>
+      <p class="hint"><svg viewBox="0 0 28 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1 7h26M5 3 1 7l4 4M23 3l4 4-4 4"/></svg>Arraste para girar a lata</p>
+      <a class="cta" href="#original">Escolha seu sabor <span aria-hidden="true">↓</span></a>
+    </div>
+  </section>
+
+  <section id="original" class="txt-right" style="--acc:#4b6a00">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Skate · bowl e rampa vertical</p>
+      <h2>Original<small>Limão-siciliano e gengibre</small></h2>
+      <p class="punch">Rampa de 4 metros. Zero hesitação.</p>
+      <p class="lead">Cítrico seco, ardido no fim. O sabor que abriu a linha e continua sendo o mais pedido na pista.</p>
+      <dl class="stats">
+        <div><dt>Drop</dt><dd>4,2 m</dd></div>
+        <div><dt>Cafeína</dt><dd>86 mg</dd></div>
+        <div><dt>Servir a</dt><dd>2 °C</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="acai" class="txt-left" style="--acc:#5d2a8c">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Snowboard · neve fresca às 6h</p>
+      <h2>Açaí<small>Açaí, guaraná e frutas vermelhas</small></h2>
+      <p class="punch">−12 °C no topo. Você no comando.</p>
+      <p class="lead">Encorpado e frutado, com o guaraná segurando a energia na descida inteira.</p>
+      <dl class="stats">
+        <div><dt>Altitude</dt><dd>3.200 m</dd></div>
+        <div><dt>Cafeína</dt><dd>86 mg</dd></div>
+        <div><dt>Servir a</dt><dd>2 °C</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="maracuja" class="txt-right" style="--acc:#b4520a">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Mountain bike · downhill</p>
+      <h2>Maracujá<small>Maracujá, laranja e pimenta-rosa</small></h2>
+      <p class="punch">72 km/h trilha abaixo.</p>
+      <p class="lead">Azedinho, tropical e com um toque picante de pimenta-rosa. Feito pra quem não usa o freio.</p>
+      <dl class="stats">
+        <div><dt>Velocidade</dt><dd>72 km/h</dd></div>
+        <div><dt>Cafeína</dt><dd>86 mg</dd></div>
+        <div><dt>Servir a</dt><dd>2 °C</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="melancia" class="txt-left" style="--acc:#c2183f">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Surf · ondas grandes</p>
+      <h2>Melancia Zero<small>Melancia, hortelã e zero açúcar</small></h2>
+      <p class="punch">Onda de 8 metros. Zero açúcar.</p>
+      <p class="lead">Leve, refrescante e com hortelã gelada no final. Toda a energia, sem nenhum grama de açúcar.</p>
+      <dl class="stats">
+        <div><dt>Onda</dt><dd>8 m</dd></div>
+        <div><dt>Açúcar</dt><dd>0 g</dd></div>
+        <div><dt>Servir a</dt><dd>2 °C</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="dentro" style="--acc:#8fd3ff">
+    <div class="dentro-pin">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Por lata de 269 ml</p>
+      <h2>Dentro da lata</h2>
+      <details class="nutri" id="nutri">
+        <summary>Tabela nutricional</summary>
+        <table>
+          <caption>Porção de 269 ml (1 lata). Valores ilustrativos de uma marca fictícia.</caption>
+          <thead><tr><th scope="col"><span hidden>Nutriente</span></th><th scope="col">Por lata</th><th scope="col">Zero</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Valor energético</th><td>118 kcal</td><td>8 kcal</td></tr>
+            <tr><th scope="row">Carboidratos</th><td>29 g</td><td>1,6 g</td></tr>
+            <tr><th scope="row">Açúcares totais</th><td>28 g</td><td>0 g</td></tr>
+            <tr><th scope="row">Sódio</th><td>105 mg</td><td>105 mg</td></tr>
+            <tr><th scope="row">Cafeína</th><td>86 mg</td><td>86 mg</td></tr>
+            <tr><th scope="row">Taurina</th><td>1.000 mg</td><td>1.000 mg</td></tr>
+            <tr><th scope="row">Vitamina B3</th><td>6,4 mg</td><td>6,4 mg</td></tr>
+            <tr><th scope="row">Vitamina B6</th><td>0,7 mg</td><td>0,7 mg</td></tr>
+            <tr><th scope="row">Vitamina B12</th><td>1,1 µg</td><td>1,1 µg</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </div>
+    <div></div>
+    <ul class="chips">
+      <li><b data-count="86" data-suffix=" mg">86 mg</b><span>Cafeína</span><em>32 mg a cada 100 ml</em></li>
+      <li><b data-count="1000" data-suffix=" mg">1.000 mg</b><span>Taurina</span><em>Pra manter o ritmo</em></li>
+      <li><b>B3 · B6 · B12</b><span>Vitaminas</span><em>Complexo B completo</em></li>
+      <li><b>0 g</b><span>Açúcar</span><em>Na Melancia Zero</em></li>
+    </ul>
+    <p class="warning">Não recomendado para crianças, gestantes, nutrizes, idosos e portadores de enfermidades. Não misturar com bebida alcoólica.</p>
+    </div>
+  </section>
+
+  <section id="linha" style="--acc:#1f6f8b">
+    <div class="copy">
+      <p class="eyebrow"><span class="dot"></span>Linha completa · 4 sabores</p>
+      <h2>Escolha seu pulso</h2>
+    </div>
+    <div></div>
+    <nav class="picker" aria-label="Sabores">
+      <a href="#original" data-i="0" style="--sw:#9fc21a"><span class="sw"></span><strong>Original</strong><span>Skate</span></a>
+      <a href="#acai" data-i="1" style="--sw:#5d2a8c"><span class="sw"></span><strong>Açaí</strong><span>Snowboard</span></a>
+      <a href="#maracuja" data-i="2" style="--sw:#ff8b1e"><span class="sw"></span><strong>Maracujá</strong><span>Downhill</span></a>
+      <a href="#melancia" data-i="3" style="--sw:#ff4f6d"><span class="sw"></span><strong>Melancia Zero</strong><span>Surf</span></a>
+    </nav>
+  </section>
+</main>
+
+<footer>
+  <p>PULSO é uma marca fictícia, criada como projeto de portfólio.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  if (!window.THREE) return;
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TAU = Math.PI * 2;
+
+  const FLAVORS = [
+    { name:"ORIGINAL",      sport:"SKATE",     notes:"LIMÃO-SICILIANO · GENGIBRE",       label:"#cdec3b", dark:"#95b80f", ink:"#14210a", ecg:"#14210a" },
+    { name:"AÇAÍ",          sport:"SNOWBOARD", notes:"AÇAÍ · GUARANÁ · FRUTAS VERMELHAS", label:"#6a2f9e", dark:"#35115a", ink:"#f4ecff", ecg:"#e6d2ff" },
+    { name:"MARACUJÁ",      sport:"DOWNHILL",  notes:"MARACUJÁ · LARANJA · PIMENTA-ROSA", label:"#ff8b1e", dark:"#d9560a", ink:"#2b1203", ecg:"#2b1203" },
+    { name:"MELANCIA ZERO", sport:"SURF",      notes:"MELANCIA · HORTELÃ · ZERO AÇÚCAR",  label:"#ff4f6d", dark:"#c91f43", ink:"#fff4f6", ecg:"#fff4f6" }
+  ];
+
+  // fundo e tinta de cada seção, na ordem do scroll
+  // "Dentro da lata" aparece duas vezes: início e fim do trecho em que a lata desmonta em etapas
+  const SECTION_BG  = ["#d6e5ee","#e3efc4","#ddd3ec","#f6dcc2","#f6d3da","#0c1923","#0c1923","#d6e5ee"];
+  const SECTION_INK = ["#0c1a24","#17230b","#26113a","#2e1606","#33101a","#e6f2f8","#e6f2f8","#0c1a24"];
+
+  // ---------- utilidades ----------
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const hex2rgb = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+  const mixHex = (a,b,t) => { const A = hex2rgb(a), B = hex2rgb(b); return "rgb(" + A.map((v,i) => Math.round(v + (B[i]-v)*t)).join(",") + ")"; };
+  const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+  const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+  // ---------- gotas de condensação (mesmas posições em todos os rótulos) ----------
+  const LW = 2048, LH = 1024;
+  const rand = rng(269);
+  const DROPS = [];
+  for (let i = 0; i < 340; i++){
+    const r = 2.5 + Math.pow(rand(), 3) * 15;
+    DROPS.push({ x: rand()*LW, y: LH*0.08 + rand()*LH*0.86, r, trail: r > 10 && rand() < 0.5 ? 30 + rand()*90 : 0 });
+  }
+  const FROST = [];
+  for (let i = 0; i < 9000; i++){
+    const top = rand() < 0.5;
+    const band = Math.pow(rand(), 2) * LH * 0.1;
+    FROST.push({ x: rand()*LW, y: top ? band : LH - band, r: 0.6 + rand()*2.2, a: 0.05 + rand()*0.35 });
+  }
+  // recém-saída do freezer: crosta extra, mais grossa embaixo, e cristais de gelo em estrela
+  const FROST_DEEP = [];
+  for (let i = 0; i < 7000; i++){
+    const bottom = rand() < 0.68;
+    const band = Math.pow(rand(), 1.7) * LH * (bottom ? 0.16 : 0.11);
+    FROST_DEEP.push({ x: rand()*LW, y: bottom ? LH - band : band, r: 0.5 + rand()*1.8, a: 0.08 + rand()*0.4 });
+  }
+  const XTALS = [];
+  for (let i = 0; i < 520; i++){
+    const bottom = rand() < 0.65;
+    const band = Math.pow(rand(), 1.4) * LH * (bottom ? 0.17 : 0.12);
+    XTALS.push({ x: rand()*LW, y: bottom ? LH - band : band, len: 3 + rand()*8, rot: rand()*Math.PI, a: 0.25 + rand()*0.45 });
+  }
+  function drawXtals(g, alphaMul){
+    g.lineCap = "round"; g.lineWidth = 1.3;
+    XTALS.forEach(c => {
+      g.globalAlpha = c.a * alphaMul; g.beginPath();
+      for (let k = 0; k < 3; k++){
+        const t = c.rot + k * Math.PI / 3, dx = Math.cos(t) * c.len, dy = Math.sin(t) * c.len;
+        g.moveTo(c.x - dx, c.y - dy); g.lineTo(c.x + dx, c.y + dy);
+      }
+      g.stroke();
+    });
+    g.globalAlpha = 1;
+  }
+
+  function drawECG(g, y, x0, x1, spikes, amp){
+    g.beginPath(); g.moveTo(x0, y);
+    spikes.forEach(sx => {
+      g.lineTo(sx-70, y); g.lineTo(sx-50, y-amp*.14); g.lineTo(sx-34, y);
+      g.lineTo(sx-14, y+amp*.22); g.lineTo(sx+4, y-amp); g.lineTo(sx+24, y+amp*.48);
+      g.lineTo(sx+38, y); g.lineTo(sx+78, y-amp*.22); g.lineTo(sx+110, y);
+    });
+    g.lineTo(x1, y); g.stroke();
+  }
+
+  function spaced(g, text, x, y, spacing){
+    const chars = [...text];
+    const widths = chars.map(c => g.measureText(c).width);
+    const total = widths.reduce((s,w) => s+w, 0) + spacing*(chars.length-1);
+    let cx = x - total/2;
+    const prev = g.textAlign; g.textAlign = "left";
+    chars.forEach((c,i) => { g.fillText(c, cx, y); cx += widths[i] + spacing; });
+    g.textAlign = prev;
+  }
+
+  function makeLabelCanvas(f){
+    const c = document.createElement("canvas"); c.width = LW; c.height = LH;
+    const g = c.getContext("2d");
+    const grd = g.createLinearGradient(0,0,0,LH);
+    grd.addColorStop(0, f.dark); grd.addColorStop(.22, f.label); grd.addColorStop(.78, f.label); grd.addColorStop(1, f.dark);
+    g.fillStyle = grd; g.fillRect(0,0,LW,LH);
+
+    // faixas diagonais de velocidade
+    g.save(); g.globalAlpha = .09; g.strokeStyle = f.ink; g.lineWidth = 16;
+    for (let x = -LH; x < LW + LH; x += 84){ g.beginPath(); g.moveTo(x, LH); g.lineTo(x + LH*.55, 0); g.stroke(); }
+    g.restore();
+
+    // painel frontal
+    g.save(); g.globalAlpha = .14; g.fillStyle = f.ink; g.fillRect(640, 150, 768, 6); g.fillRect(640, 868, 768, 6); g.restore();
+
+    g.fillStyle = f.ink; g.textBaseline = "alphabetic"; g.textAlign = "center";
+    g.font = '500 34px "IBM Plex Mono", monospace';
+    spaced(g, "ENERGY DRINK", 1024, 230, 14);
+    g.font = '900 330px "Big Shoulders Display", Impact, sans-serif';
+    g.fillText("PULSO", 1024, 560);
+
+    // linha de batimento atravessando a lata
+    g.save(); g.strokeStyle = f.ecg; g.lineWidth = 9; g.lineJoin = "round"; g.lineCap = "round";
+    drawECG(g, 650, -20, LW + 20, [520, 1250, 1900], 120); g.restore();
+
+    g.font = '700 64px "Archivo", Arial, sans-serif';
+    g.fillText(f.name, 1024, 770);
+    g.font = '500 26px "IBM Plex Mono", monospace';
+    g.globalAlpha = .85; spaced(g, f.notes, 1024, 830, 4); g.globalAlpha = 1;
+
+    // selo do esporte
+    g.font = '800 40px "Big Shoulders Display", Impact, sans-serif';
+    const sw = g.measureText(f.sport).width + 70;
+    g.lineWidth = 4; g.strokeStyle = f.ink;
+    g.beginPath(); const sx = 1024 - sw/2, sy = 300; const rr = 28;
+    g.moveTo(sx+rr, sy); g.arcTo(sx+sw, sy, sx+sw, sy+56, rr); g.arcTo(sx+sw, sy+56, sx, sy+56, rr); g.arcTo(sx, sy+56, sx, sy, rr); g.arcTo(sx, sy, sx+sw, sy, rr); g.stroke();
+    spaced(g, f.sport, 1024, 343, 6);
+
+    // lateral: volume
+    g.font = '900 150px "Big Shoulders Display", Impact, sans-serif';
+    g.fillText("269", 300, 560); g.font = '700 48px "Archivo", Arial, sans-serif'; g.fillText("ml", 300, 625);
+
+    // verso: informação nutricional
+    g.textAlign = "left"; g.font = '500 24px "IBM Plex Mono", monospace';
+    const lines = ["INFORMAÇÃO NUTRICIONAL","PORÇÃO 269 ml (1 LATA)","CAFEÍNA ........ 86 mg","TAURINA ..... 1.000 mg","VIT. B3 · B6 · B12","","NÃO RECOMENDADO PARA","CRIANÇAS, GESTANTES,","NUTRIZES E IDOSOS.","SERVIR GELADO · 2 °C"];
+    lines.forEach((l,i) => g.fillText(l, 1600, 330 + i*38));
+    g.textAlign = "center";
+
+    // gelo nas bordas
+    const fr = g.createLinearGradient(0,0,0,LH);
+    fr.addColorStop(0,"rgba(244,251,255,.75)"); fr.addColorStop(.09,"rgba(244,251,255,0)");
+    fr.addColorStop(.91,"rgba(244,251,255,0)"); fr.addColorStop(1,"rgba(244,251,255,.8)");
+    g.fillStyle = fr; g.fillRect(0,0,LW,LH);
+    g.fillStyle = "#f4fbff";
+    FROST.forEach(p => { g.globalAlpha = p.a; g.beginPath(); g.arc(p.x, p.y, p.r, 0, TAU); g.fill(); });
+    g.globalAlpha = 1;
+    // crosta de freezer: véu fosco mais alto embaixo, pontos de gelo e cristais
+    const deep = g.createLinearGradient(0,0,0,LH);
+    deep.addColorStop(0,"rgba(236,247,255,.2)"); deep.addColorStop(.08,"rgba(236,247,255,0)");
+    deep.addColorStop(.88,"rgba(236,247,255,0)"); deep.addColorStop(1,"rgba(236,247,255,.26)");
+    g.fillStyle = deep; g.fillRect(0,0,LW,LH);
+    g.fillStyle = "#f4fbff";
+    FROST_DEEP.forEach(p => { g.globalAlpha = p.a * .45; g.beginPath(); g.arc(p.x, p.y, p.r, 0, TAU); g.fill(); });
+    g.strokeStyle = "#ffffff"; drawXtals(g, .5);
+
+    // gotas
+    DROPS.forEach(d => {
+      if (d.trail){
+        const tg = g.createLinearGradient(0, d.y - d.trail, 0, d.y);
+        tg.addColorStop(0,"rgba(255,255,255,0)"); tg.addColorStop(1,"rgba(255,255,255,.28)");
+        g.fillStyle = tg; g.fillRect(d.x - d.r*.35, d.y - d.trail, d.r*.7, d.trail);
+      }
+      g.globalAlpha = .22; g.fillStyle = "#000"; g.beginPath(); g.ellipse(d.x + d.r*.15, d.y + d.r*.2, d.r, d.r*1.15, 0, 0, TAU); g.fill();
+      g.globalAlpha = .26; g.fillStyle = "#fff"; g.beginPath(); g.ellipse(d.x, d.y, d.r, d.r*1.15, 0, 0, TAU); g.fill();
+      g.globalAlpha = .9; g.beginPath(); g.ellipse(d.x - d.r*.35, d.y - d.r*.4, d.r*.28, d.r*.34, 0, 0, TAU); g.fill();
+    });
+    g.globalAlpha = 1;
+    return c;
+  }
+
+  function makeBumpCanvas(){
+    const c = document.createElement("canvas"); c.width = LW; c.height = LH;
+    const g = c.getContext("2d");
+    g.fillStyle = "#000"; g.fillRect(0,0,LW,LH);
+    g.fillStyle = "#fff";
+    FROST.forEach(p => { g.globalAlpha = p.a*.8; g.beginPath(); g.arc(p.x, p.y, p.r, 0, TAU); g.fill(); });
+    FROST_DEEP.forEach(p => { g.globalAlpha = p.a*.4; g.beginPath(); g.arc(p.x, p.y, p.r, 0, TAU); g.fill(); });
+    g.globalAlpha = 1;
+    g.strokeStyle = "#fff"; drawXtals(g, .45);
+    DROPS.forEach(d => {
+      const rg = g.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r*1.15);
+      rg.addColorStop(0,"#fff"); rg.addColorStop(.7,"#999"); rg.addColorStop(1,"#000");
+      g.fillStyle = rg; g.beginPath(); g.ellipse(d.x, d.y, d.r, d.r*1.15, 0, 0, TAU); g.fill();
+    });
+    return c;
+  }
+
+  // ---------- three.js ----------
+  const canvas = document.getElementById("scene");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+
+  const FOV = 32, CAM_Z = 9;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
+  camera.position.set(0, 0, CAM_Z);
+
+  // ambiente de estúdio gelado para os reflexos do metal
+  (function buildEnv(){
+    const envScene = new THREE.Scene();
+    const gc = document.createElement("canvas"); gc.width = 16; gc.height = 256;
+    const gg = gc.getContext("2d"); const gr = gg.createLinearGradient(0,0,0,256);
+    gr.addColorStop(0,"#ffffff"); gr.addColorStop(.42,"#cfe6f3"); gr.addColorStop(.55,"#7fa4bb"); gr.addColorStop(1,"#1a2a36");
+    gg.fillStyle = gr; gg.fillRect(0,0,16,256);
+    const skyTex = new THREE.CanvasTexture(gc); skyTex.encoding = THREE.sRGBEncoding;
+    envScene.add(new THREE.Mesh(new THREE.SphereGeometry(20, 32, 16), new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide })));
+    const box = (w,h,x,y,z,c) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({ color:c, side:THREE.DoubleSide })); m.position.set(x,y,z); m.lookAt(0,0,0); envScene.add(m); };
+    box(10,3, -9,4,6, 0xffffff); box(3,14, 10,0,-2, 0xe8f6ff); box(14,2, 0,-6,-10, 0x9fd8ff); box(4,4, 0,10,0, 0xffffff);
+    const pm = new THREE.PMREMGenerator(renderer);
+    scene.environment = pm.fromScene(envScene, 0.035).texture;
+    pm.dispose();
+  })();
+
+  const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(3,4,6); scene.add(key);
+  const rim = new THREE.DirectionalLight(0x9fd8ff, 0.9); rim.position.set(-5,2,-3); scene.add(rim);
+  scene.add(new THREE.AmbientLight(0xdfefff, 0.25));
+
+  const metalMat = new THREE.MeshPhysicalMaterial({ color:0xdde5ea, metalness:1, roughness:0.26, clearcoat:0.4, clearcoatRoughness:0.2 });
+
+  // perfil da lata (raio, altura)
+  const V = (x,y) => new THREE.Vector2(x,y);
+  const R = 0.661;
+  const topProfile = [V(R,1.1),V(R,1.16),V(.63,1.24),V(.585,1.31),V(.565,1.355),V(.578,1.37),V(.575,1.392),V(.552,1.396),V(.54,1.37),V(.525,1.345),V(.0,1.345)];
+  const bottomProfile = [V(.0,-1.24),V(.28,-1.262),V(.47,-1.31),V(.53,-1.345),V(.575,-1.352),V(.615,-1.32),V(R,-1.19),V(R,-1.1)];
+  const topGeo = new THREE.LatheGeometry(topProfile, 96);
+  const botGeo = new THREE.LatheGeometry(bottomProfile, 96);
+  const bodyGeo = new THREE.CylinderGeometry(R, R, 2.2, 128, 1, true, Math.PI);
+  const tabGeo = (function(){
+    const s = new THREE.Shape();
+    s.moveTo(-.11,-.2); s.lineTo(.11,-.2); s.quadraticCurveTo(.16,-.2,.16,-.14); s.lineTo(.16,.14); s.quadraticCurveTo(.16,.2,.1,.2);
+    s.lineTo(-.1,.2); s.quadraticCurveTo(-.16,.2,-.16,.14); s.lineTo(-.16,-.14); s.quadraticCurveTo(-.16,-.2,-.11,-.2);
+    const h = new THREE.Path(); h.moveTo(-.07,-.13); h.lineTo(.07,-.13); h.lineTo(.07,-.03); h.lineTo(-.07,-.03); h.lineTo(-.07,-.13); s.holes.push(h);
+    const g = new THREE.ExtrudeGeometry(s, { depth:.012, bevelEnabled:false }); g.rotateX(-Math.PI/2); return g;
+  })();
+  const rivetGeo = new THREE.CylinderGeometry(.035,.035,.02,20);
+  // Lata um pouco mais fina: só o diâmetro diminui (altura igual). 1 = largura original.
+  const CAN_SLIM = 0.92;
+  [topGeo, botGeo, bodyGeo].forEach(g => g.scale(CAN_SLIM, 1, CAN_SLIM));
+
+  // textura de transparência da crosta de gelo no metal (v = 0..1 ao longo do perfil)
+  function frostAlphaTex(strength){
+    const W = 512, H = 256, c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d"); g.fillStyle = "#000"; g.fillRect(0,0,W,H);
+    const fr = rng(911 + Math.round(strength(0.5) * 100));
+    for (let i = 0; i < 9000; i++){
+      const y = fr() * H, a = strength(1 - y / H); // canvas é invertido em relação ao v da malha
+      if (fr() > a) continue;
+      g.globalAlpha = 0.15 + fr() * 0.55; g.fillStyle = "#fff";
+      g.beginPath(); g.arc(fr() * W, y, 0.6 + fr() * 2.6, 0, TAU); g.fill();
+    }
+    // véu contínuo onde a crosta é mais grossa
+    for (let y = 0; y < H; y++){ g.globalAlpha = strength(1 - y / H) * 0.3; g.fillRect(0, y, W, 1); }
+    g.globalAlpha = 1;
+    const t = new THREE.CanvasTexture(c); return t;
+  }
+  // tampa: v=0 na borda do corpo, v=1 no centro. Mais gelo no ombro e na borda.
+  const frostTopTex = frostAlphaTex(v => v < 0.75 ? 0.45 - v * 0.3 : 0.15);
+  // fundo: v=0 no centro, v=1 na borda. Base que ficou encostada no gelo: crosta quase toda.
+  const frostBotTex = frostAlphaTex(v => 0.25 + v * 0.25);
+  const frostMat = (alpha) => new THREE.MeshStandardMaterial({ color:0xf2faff, roughness:.85, metalness:0, transparent:true, alphaMap:alpha, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2 });
+  const frostTopMat = frostMat(frostTopTex), frostBotMat = frostMat(frostBotTex);
+
+  function makeCan(tex, bump){
+    const group = new THREE.Group();
+    const labelMat = new THREE.MeshPhysicalMaterial({ map:tex, bumpMap:bump, bumpScale:0.012, metalness:0.5, roughness:0.3, clearcoat:1, clearcoatRoughness:0.12 });
+    const mid = new THREE.Mesh(bodyGeo, labelMat);
+    const top = new THREE.Group();
+    top.add(new THREE.Mesh(topGeo, metalMat));
+    const tab = new THREE.Mesh(tabGeo, metalMat); tab.position.set(0, 1.352, .14 * CAN_SLIM); top.add(tab);
+    const rivet = new THREE.Mesh(rivetGeo, metalMat); rivet.position.set(0,1.35,.04 * CAN_SLIM); top.add(rivet);
+    const bottom = new THREE.Mesh(botGeo, metalMat);
+    // crosta de gelo por cima do metal (acompanha a tampa e o fundo quando a lata abre)
+    const topFrost = new THREE.Mesh(topGeo, frostTopMat); topFrost.scale.setScalar(1.004); top.add(topFrost);
+    const botFrost = new THREE.Mesh(botGeo, frostBotMat); botFrost.scale.setScalar(1.004); bottom.add(botFrost);
+    group.add(mid, top, bottom);
+    return { group, top, mid, bottom, labelMat };
+  }
+
+  // ---------- cubos de gelo ----------
+  const iceGeo = (function(){
+    const g = new THREE.BoxGeometry(.42,.42,.42, 3,3,3);
+    const p = g.attributes.position; const rr = rng(7);
+    for (let i = 0; i < p.count; i++){
+      const v = new THREE.Vector3(p.getX(i), p.getY(i), p.getZ(i));
+      v.multiplyScalar(0.92 + 0.08 * (v.length()/0.36));
+      v.x += (rr()-.5)*.03; v.y += (rr()-.5)*.03; v.z += (rr()-.5)*.03;
+      p.setXYZ(i, v.x, v.y, v.z);
+    }
+    g.computeVertexNormals(); return g;
+  })();
+  const iceMat = new THREE.MeshPhysicalMaterial({ color:0xe6f6ff, metalness:0, roughness:.06, transparent:true, opacity:.5, clearcoat:1, clearcoatRoughness:.05, envMapIntensity:1.8, depthWrite:false });
+  const ICE = [];
+  [[0,.6,1],[1.3,-.7,.8],[2.4,.15,1.1],[3.6,-.35,.7],[4.7,.85,.9],[5.6,-.95,.75]].forEach(([a,h,s],i) => {
+    const m = new THREE.Mesh(iceGeo, iceMat); scene.add(m);
+    ICE.push({ m, a, h, s, p:i*1.7, rx:(i%2?1:-1)*.4, ry:.3+i*.05 });
+  });
+
+  // ---------- partículas geladas (material compartilhado) ----------
+  // Pontos com tamanho, transparência e rotação próprios. uScale converte tamanho do mundo em pixels.
+  function particleMat(map, color, additive, twinkle){
+    return new THREE.ShaderMaterial({
+      uniforms:{ map:{ value:map }, color:{ value:new THREE.Color(color) }, uOpacity:{ value:1 }, uScale:{ value:1 }, uSizeMul:{ value:1 }, uTime:{ value:0 } },
+      vertexShader:
+        "attribute float aSize; attribute float aAlpha; attribute float aRot;\n" +
+        "uniform float uScale; uniform float uSizeMul; uniform float uTime;\n" +
+        "varying float vAlpha; varying float vRot;\n" +
+        "void main(){\n" +
+        (twinkle
+          ? "  vAlpha = pow(max(0.0, sin(uTime * (1.2 + fract(aRot * 7.13) * 2.2) + aRot * 6.2831)), 14.0) * aAlpha;\n"
+          : "  vAlpha = aAlpha;\n") +
+        "  vRot = aRot;\n" +
+        "  vec4 mv = modelViewMatrix * vec4(position, 1.0);\n" +
+        "  gl_PointSize = aSize * uSizeMul * uScale / -mv.z;\n" +
+        "  gl_Position = projectionMatrix * mv;\n" +
+        "}",
+      fragmentShader:
+        "uniform sampler2D map; uniform vec3 color; uniform float uOpacity;\n" +
+        "varying float vAlpha; varying float vRot;\n" +
+        "void main(){\n" +
+        "  vec2 p = gl_PointCoord - 0.5; float c = cos(vRot), s = sin(vRot);\n" +
+        "  p = mat2(c, -s, s, c) * p + 0.5;\n" +
+        "  float a = texture2D(map, p).a * vAlpha * uOpacity;\n" +
+        "  if (a < 0.003) discard;\n" +
+        "  gl_FragColor = vec4(color, a);\n" +
+        "}",
+      transparent:true, depthWrite:false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending
+    });
+  }
+  function pointsGeo(n){
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n*3), 3));
+    g.setAttribute("aSize", new THREE.BufferAttribute(new Float32Array(n), 1));
+    g.setAttribute("aAlpha", new THREE.BufferAttribute(new Float32Array(n), 1));
+    g.setAttribute("aRot", new THREE.BufferAttribute(new Float32Array(n), 1));
+    return g;
+  }
+  const RC = R * CAN_SLIM; // raio real da lata
+
+  // 1. vapor gelado: fiapos que saem da tampa e das laterais e escorrem para baixo
+  const vaporTex = (function(){
+    const S = 128, c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
+    const vr = rng(77);
+    for (let i = 0; i < 30; i++){
+      const x = S/2 + (vr()-.5) * S * .55, y = S/2 + (vr()-.5) * S * .4, r = S * (.08 + vr() * .16);
+      g.save(); g.translate(x, y); g.rotate((vr() - .5) * .7); g.scale(2.4 + vr() * 1.4, 1);
+      const rg = g.createRadialGradient(0, 0, 0, 0, 0, r);
+      rg.addColorStop(0, "rgba(255,255,255," + (.08 + vr() * .12) + ")"); rg.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = rg; g.fillRect(-r, -r, r * 2, r * 2); g.restore();
+    }
+    g.globalCompositeOperation = "destination-in";
+    const m = g.createRadialGradient(S/2, S/2, S*.1, S/2, S/2, S/2); m.addColorStop(0, "rgba(0,0,0,1)"); m.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = m; g.fillRect(0, 0, S, S);
+    return new THREE.CanvasTexture(c);
+  })();
+  const VAPOR_N = 64;
+  const vaporGeo = pointsGeo(VAPOR_N);
+  const vaporMat = particleMat(vaporTex, 0xf4fbff, false, false);
+  const vaporPts = new THREE.Points(vaporGeo, vaporMat); vaporPts.frustumCulled = false; scene.add(vaporPts);
+  const vr = rng(42), vapor = [];
+  function spawnVapor(p, ox, oy, s){
+    const a = vr() * TAU, fromTop = vr() < 0.55;
+    const rad = RC * s * (fromTop ? .78 + vr() * .3 : 1.03);
+    p.x = ox + Math.cos(a) * rad; p.z = Math.sin(a) * rad;
+    p.y = oy + (fromTop ? 1.32 + vr() * .08 : -0.9 + vr() * 1.9) * s;
+    const out = .04 + vr() * .1;
+    p.vx = Math.cos(a) * out; p.vz = Math.sin(a) * out;
+    p.vy = fromTop ? .02 + vr() * .05 : -.02 - vr() * .04;
+    p.life = 0; p.max = 2.6 + vr() * 2.2; p.peak = .22 + vr() * .26;
+    p.s0 = (.24 + vr() * .16) * s; p.s1 = (.75 + vr() * .5) * s;
+    p.rot = vr() * TAU; p.spin = (vr() - .5) * .5;
+  }
+  for (let i = 0; i < VAPOR_N; i++){ const p = {}; spawnVapor(p, 0, 0, 1); p.life = vr() * p.max; vapor.push(p); }
+
+  // 5. poeira de gelo: cristais minúsculos caindo devagar em volta da lata
+  const dustTex = (function(){
+    const S = 32, c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
+    const rg = g.createRadialGradient(S/2, S/2, 0, S/2, S/2, S/2); rg.addColorStop(0, "rgba(255,255,255,1)"); rg.addColorStop(.45, "rgba(255,255,255,.55)"); rg.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = rg; g.fillRect(0, 0, S, S); return new THREE.CanvasTexture(c);
+  })();
+  const DUST_N = 80;
+  const dustGeo = pointsGeo(DUST_N);
+  const dustMat = particleMat(dustTex, 0xe2f4ff, false, false);
+  const dustPts = new THREE.Points(dustGeo, dustMat); dustPts.frustumCulled = false; scene.add(dustPts);
+  const dr = rng(5), dust = [];
+  function spawnDust(p, ox, oy, s, anywhere){
+    p.x = ox + (dr() - .5) * 3.6 * s; p.z = (dr() - .5) * 2;
+    p.y = oy + (anywhere ? (dr() * 2 - 1) * 1.9 : 1.9 + dr() * .3) * s;
+    p.vy = -(.06 + dr() * .14); p.phase = dr() * TAU; p.sway = .03 + dr() * .06;
+    p.size = .022 + dr() * .03; p.a = .45 + dr() * .45;
+  }
+  for (let i = 0; i < DUST_N; i++){ const p = {}; spawnDust(p, 0, 0, 1, true); dust.push(p); }
+
+  // 4. brilhos de cristal de gelo presos na lata (piscam no shader)
+  const glintTex = (function(){
+    const S = 64, c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
+    const rg = g.createRadialGradient(S/2, S/2, 0, S/2, S/2, S*.22); rg.addColorStop(0, "rgba(255,255,255,1)"); rg.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = rg; g.fillRect(0, 0, S, S);
+    g.globalCompositeOperation = "lighter";
+    [[S, 2.2], [S*.62, 1.4]].forEach(([len, w], k) => {
+      g.save(); g.translate(S/2, S/2); g.rotate(k * Math.PI / 4);
+      const lg = g.createLinearGradient(-len/2, 0, len/2, 0);
+      lg.addColorStop(0, "rgba(255,255,255,0)"); lg.addColorStop(.5, "rgba(255,255,255,.95)"); lg.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = lg; g.fillRect(-len/2, -w/2, len, w); g.rotate(Math.PI/2); g.fillRect(-len/2, -w/2, len, w);
+      g.restore();
+    });
+    return new THREE.CanvasTexture(c);
+  })();
+  const GLINT_N = 70;
+  const glintGeo = pointsGeo(GLINT_N);
+  (function(){
+    const gr = rng(31), pos = glintGeo.attributes.position, sz = glintGeo.attributes.aSize, al = glintGeo.attributes.aAlpha, ro = glintGeo.attributes.aRot;
+    for (let i = 0; i < GLINT_N; i++){
+      const a = gr() * TAU, zone = gr();
+      let r = RC + .006, y;
+      if (zone < .45) y = -1.1 + Math.pow(gr(), 1.6) * .3;        // faixa de gelo de baixo
+      else if (zone < .75) y = 1.1 - Math.pow(gr(), 1.6) * .22;   // faixa de gelo de cima
+      else if (zone < .9){ r = .575 * CAN_SLIM + .006; y = 1.39; } // borda da tampa
+      else { r = .6 * CAN_SLIM + .006; y = -1.33; }                // borda do fundo
+      pos.setXYZ(i, Math.sin(a) * r, y, Math.cos(a) * r);
+      sz.setX(i, .07 + gr() * .09); al.setX(i, .6 + gr() * .4); ro.setX(i, gr());
+    }
+  })();
+  const glintMat = particleMat(glintTex, 0xffffff, true, true);
+
+  // 2. gotas grandes escorrendo pela lata (presas à lata, giram junto)
+  const dropGeo = new THREE.SphereGeometry(1, 14, 10);
+  const dropMat = new THREE.MeshPhysicalMaterial({ color:0xffffff, metalness:0, roughness:.03, transparent:true, opacity:.5, clearcoat:1, clearcoatRoughness:0, envMapIntensity:2.6, depthWrite:false });
+  const trailMat = new THREE.MeshPhysicalMaterial({ color:0xffffff, metalness:0, roughness:.08, transparent:true, opacity:.16, clearcoat:1, clearcoatRoughness:.05, envMapIntensity:2, depthWrite:false });
+  const DROP_N = 9, dropRand = rng(808);
+  function resetDrop(d, first){
+    d.theta = dropRand() * TAU; d.r = .03 + dropRand() * .028;
+    d.y0 = .35 + dropRand() * .6; d.y = d.y0 - (first ? dropRand() * .9 : 0);
+    d.speed = .18 + dropRand() * .3; d.moving = dropRand() < .5; d.timer = .2 + dropRand() * 1.2; d.grow = first ? 1 : 0;
+    d.holder.rotation.y = d.theta;
+  }
+  function makeDrops(parent){
+    const list = [];
+    for (let i = 0; i < DROP_N; i++){
+      const holder = new THREE.Group();
+      const drop = new THREE.Mesh(dropGeo, dropMat), trail = new THREE.Mesh(dropGeo, trailMat);
+      holder.add(trail, drop); parent.add(holder);
+      const d = { holder, drop, trail }; resetDrop(d, true); list.push(d);
+    }
+    return list;
+  }
+  function updateDrops(list, dt){
+    list.forEach(d => {
+      if (!reduce){
+        d.grow = Math.min(1, d.grow + dt * 3);
+        d.timer -= dt;
+        if (d.timer <= 0){ d.moving = !d.moving; d.timer = d.moving ? .3 + dropRand() * 1.1 : .2 + dropRand() * 1.4; }
+        if (d.moving) d.y -= d.speed * dt * (1 + d.r * 12);
+        if (d.y < -1.02) resetDrop(d, false);
+      }
+      if (d.y0 - d.y > .55) d.y0 = d.y + .55; // rastro com no máximo ~meia lata
+      const r = d.r * d.grow, len = d.y0 - d.y;
+      d.drop.position.set(0, d.y, RC + r * .32);
+      d.drop.scale.set(r, r * 1.3, r * .5);
+      d.trail.visible = len > .02;
+      d.trail.position.set(0, d.y + len / 2, RC + .004);
+      d.trail.scale.set(r * .42, Math.max(.001, len / 2), r * .14);
+    });
+  }
+
+  // ---------- lata desmontada: líquido com gás ----------
+  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const LIQ_R = .5 * CAN_SLIM, LIQ_Y0 = 1.0;
+  const liquidMat = new THREE.MeshPhysicalMaterial({ color:0xff4f6d, transparent:true, opacity:.85, roughness:.12, metalness:0, clearcoat:1, clearcoatRoughness:.04, envMapIntensity:1.1, depthWrite:false });
+  const liquidGeo = new THREE.CylinderGeometry(1, 1, 1, 48, 1, false);
+  const BUB_N = 46;
+  const bubbleGeo = pointsGeo(BUB_N);
+  const bubbleMat = particleMat(dustTex, 0xffffff, false, false);
+  const br = rng(64), bubbles = [];
+  for (let i = 0; i < BUB_N; i++){
+    const a = br() * TAU, r = Math.sqrt(br()) * LIQ_R * .82;
+    bubbles.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, t: br(), v: .18 + br() * .3, size: .025 + br() * .035, a: .5 + br() * .45 });
+  }
+
+  // ---------- etiquetas ligadas às peças ----------
+  const calloutWrap = document.getElementById("callouts");
+  const calloutSvg = calloutWrap.querySelector("svg");
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const callouts = [...calloutWrap.querySelectorAll(".callout")].map(el => {
+    const path = document.createElementNS(SVGNS, "path"), dot = document.createElementNS(SVGNS, "circle");
+    dot.setAttribute("r", "3"); calloutSvg.append(path, dot);
+    return { el, part: el.dataset.part, path, dot, w: 0, h: 0, op: 0 };
+  });
+  const measureCallouts = () => callouts.forEach(c => { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; });
+
+  // ---------- números contando quando a seção aparece ----------
+  (function(){
+    const nums = [...document.querySelectorAll(".chips b[data-count]")];
+    if (!nums.length || reduce || !("IntersectionObserver" in window)) return;
+    const fmt = n => Math.round(n).toLocaleString("pt-BR");
+    const run = b => {
+      const to = +b.dataset.count, suf = b.dataset.suffix || "", t0 = performance.now(), dur = 1300;
+      const step = now => { const t = Math.min(1, (now - t0) / dur); b.textContent = fmt(to * (1 - Math.pow(1 - t, 3))) + suf; if (t < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    };
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) nums.forEach(run); }), { threshold:.6 });
+    io.observe(document.querySelector(".chips"));
+  })();
+
+  // tabela aberta de cara no desktop; no celular fica recolhida para não cobrir a lata
+  (function(){
+    const nutri = document.getElementById("nutri");
+    if (nutri && !window.matchMedia("(max-width:760px),(max-aspect-ratio:9/10)").matches && window.innerHeight >= 860) nutri.open = true;
+  })();
+
+  // ---------- estado guiado pelo scroll ----------
+  const sections = [...document.querySelectorAll("#story > section")];
+  let anchors = [], targets = [], layout = {};
+
+  function computeLayout(){
+    const w = window.innerWidth, h = window.innerHeight, aspect = w / h;
+    renderer.setSize(w, h, false);
+    camera.aspect = aspect; camera.updateProjectionMatrix();
+    const pxScale = h * renderer.getPixelRatio() / (2 * Math.tan(FOV/2 * Math.PI/180));
+    [vaporMat, dustMat, glintMat, bubbleMat].forEach(m => { m.uniforms.uScale.value = pxScale; });
+    measureCallouts();
+    const visH = 2 * CAM_Z * Math.tan(FOV/2 * Math.PI/180);
+    const halfW = visH * aspect / 2;
+    const mobile = w <= 760 || aspect < 0.9;
+    const side = mobile ? 0 : Math.min(2.0, halfW * 0.42);
+    const y = mobile ? visH * 0.2 : 0;
+    const s = mobile ? 0.78 : 1;
+    const base = { x:0, y, s, spin:0, flavor:0, explode:0, lineup:0, tilt:0, ice:1, stage:0 };
+    const T = (o) => Object.assign({}, base, o);
+    targets = [
+      T({ x: side, spin:0,       flavor:0, tilt: .18 }),
+      T({ x:-side, spin:TAU,     flavor:0, tilt:-.12 }),
+      T({ x: side, spin:TAU*2,   flavor:1, tilt: .12 }),
+      T({ x:-side, spin:TAU*3,   flavor:2, tilt:-.12 }),
+      T({ x: side, spin:TAU*4,   flavor:3, tilt: .12 }),
+      T({ x: mobile ? -halfW*.38 : 0, y: mobile ? -visH*.05 : .1, s: mobile ? .52 : .8, spin:TAU*4.5, flavor:3, explode:1, stage:0 }),
+      T({ x: mobile ? -halfW*.38 : 0, y: mobile ? -visH*.05 : .1, s: mobile ? .52 : .8, spin:TAU*4.75, flavor:3, explode:1, stage:1 }),
+      T({ x:0, spin:TAU*5, flavor:3, lineup:1, ice:0, stage:1 })
+    ];
+    const fit = Math.min(mobile ? .62 : .9, (halfW * 2 * .92) / (4 * 1.5));
+    layout = { mobile, visH, halfW, fit, lineY: mobile ? visH * .1 : .15 };
+    const maxScroll = document.documentElement.scrollHeight - h;
+    anchors = sections.map(sec => Math.min(sec.getBoundingClientRect().top + window.scrollY, maxScroll));
+    // fim do trecho preso de "Dentro da lata"
+    const dentro = document.getElementById("dentro");
+    const dTop = dentro.getBoundingClientRect().top + window.scrollY;
+    anchors.splice(6, 0, Math.min(dTop + Math.max(0, dentro.offsetHeight - h), maxScroll));
+  }
+
+  const cur = Object.assign({}, { x:0, y:0, s:1, spin:0, flavor:0, explode:0, lineup:0, tilt:0, ice:1, stage:0 });
+  let tgt = cur, bgStr = "", inkStr = "";
+
+  function readScroll(){
+    const y = window.scrollY;
+    let i = 0;
+    while (i < anchors.length - 1 && y >= anchors[i+1]) i++;
+    let t = 0;
+    if (i < anchors.length - 1){
+      const span = anchors[i+1] - anchors[i];
+      t = span > 0 ? clamp((y - anchors[i]) / span, 0, 1) : 0;
+    }
+    const j = Math.min(i+1, targets.length-1);
+    const e = ease(t), A = targets[i], B = targets[j];
+    const out = {};
+    for (const k in A) out[k] = A[k] + (B[k] - A[k]) * e;
+    tgt = out;
+    const bg = mixHex(SECTION_BG[i], SECTION_BG[j], e);
+    const ink = mixHex(SECTION_INK[i], SECTION_INK[j], e);
+    if (bg !== bgStr){ document.body.style.setProperty("--bg", bg); bgStr = bg; }
+    if (ink !== inkStr){ document.body.style.setProperty("--ink", ink); inkStr = ink; }
+  }
+
+  // ---------- arrastar para girar ----------
+  let dragRot = 0, dragVel = 0, dragging = false, lastX = 0, lastY = 0, decided = false, horizontal = false;
+  document.addEventListener("pointerdown", e => {
+    if (e.target.closest("a,button")) return;
+    dragging = true; decided = false; lastX = e.clientX; lastY = e.clientY;
+  });
+  document.addEventListener("pointermove", e => {
+    pointer.x = (e.clientX / window.innerWidth) * 2 - 1; pointer.y = -(e.clientY / window.innerHeight) * 2 + 1; pointerMoved = true;
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if (!decided && Math.abs(dx) + Math.abs(dy) > 6){ decided = true; horizontal = Math.abs(dx) > Math.abs(dy); }
+    if (decided && horizontal){ dragVel = dx * 0.012; dragRot += dragVel; }
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  const endDrag = () => { dragging = false; };
+  document.addEventListener("pointerup", endDrag);
+  document.addEventListener("pointercancel", endDrag);
+
+  // ---------- destaque na linha completa ----------
+  const pointer = new THREE.Vector2(9,9); let pointerMoved = false;
+  const raycaster = new THREE.Raycaster();
+  let hoverIdx = -1, pickerHover = -1;
+  const pickerLinks = [...document.querySelectorAll(".picker a")];
+  pickerLinks.forEach(a => {
+    const i = +a.dataset.i;
+    a.addEventListener("mouseenter", () => { pickerHover = i; });
+    a.addEventListener("focus", () => { pickerHover = i; });
+    a.addEventListener("mouseleave", () => { pickerHover = -1; });
+    a.addEventListener("blur", () => { pickerHover = -1; });
+  });
+
+  // ---------- montagem ----------
+  let main = null, lineup = [], labelTex = [], shownFlavor = 0;
+
+  function build(){
+    const bump = new THREE.CanvasTexture(makeBumpCanvas());
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
+    labelTex = FLAVORS.map(f => {
+      const t = new THREE.CanvasTexture(makeLabelCanvas(f));
+      t.encoding = THREE.sRGBEncoding; t.anisotropy = maxAniso; return t;
+    });
+    main = makeCan(labelTex[0], bump); scene.add(main.group);
+    main.glints = new THREE.Points(glintGeo, glintMat); main.glints.frustumCulled = false; main.mid.add(main.glints);
+    main.drops = makeDrops(main.mid);
+    main.liquid = new THREE.Mesh(liquidGeo, liquidMat); main.liquid.visible = false; main.group.add(main.liquid);
+    main.bubbles = new THREE.Points(bubbleGeo, bubbleMat); main.bubbles.frustumCulled = false; main.group.add(main.bubbles);
+    lineup = FLAVORS.map((f,i) => {
+      const c = makeCan(labelTex[i], bump);
+      c.group.traverse(o => { o.userData.idx = i; });
+      c.group.scale.setScalar(0.0001); scene.add(c.group); return c;
+    });
+    computeLayout(); readScroll(); Object.assign(cur, tgt);
+    requestAnimationFrame(frame);
+  }
+
+  // posição na tela da borda direita de cada peça
+  const partPoint = new THREE.Vector3(), partRight = new THREE.Vector3();
+  function screenOf(obj, y, vis){
+    partPoint.set(0, y, 0); obj.localToWorld(partPoint);
+    partRight.copy(partPoint); partRight.x += RC * vis * 1.02;
+    partRight.project(camera);
+    return { x: (partRight.x + 1) / 2 * window.innerWidth, y: (1 - partRight.y) / 2 * window.innerHeight };
+  }
+  function updateCallouts(lidT, botT, liqT, vis, liqTop, dt){
+    const k = Math.max(0, 1 - cur.lineup * 4);
+    const want = { tampa: smooth(.6, 1, lidT) * k, fundo: smooth(.6, 1, botT) * k, liquido: smooth(.2, .8, liqT) * k, corpo: smooth(.35, .9, liqT) * k };
+    const any = callouts.some(c => want[c.part] > .01 || c.op > .01);
+    calloutWrap.style.visibility = any ? "visible" : "hidden";
+    if (!any) return;
+    main.group.updateMatrixWorld(true);
+    const W = window.innerWidth, mobile = layout.mobile;
+    const pts = {
+      tampa: screenOf(main.top, 1.36, vis), liquido: screenOf(main.group, (1.1 + liqTop) / 2, vis * .8),
+      corpo: screenOf(main.mid, .15, vis), fundo: screenOf(main.bottom, -1.28, vis)
+    };
+    const chips = document.querySelector(".chips").getBoundingClientRect();
+    const minY = mobile ? 70 : 76, maxY = chips.top > minY + 200 ? Math.min(window.innerHeight - 16, chips.top - 10) : window.innerHeight - 16;
+    const gap = mobile ? 6 : 10, lineGap = mobile ? 18 : 64;
+    // ordem de cima para baixo, sem sobreposição
+    const kf = reduce ? 1 : 1 - Math.exp(-dt * 12);
+    const list = callouts.map(c => {
+      const w = want[c.part] || 0; c.op += (w - c.op) * kf; if (w === 0 && c.op < .02) c.op = 0;
+      const p = pts[c.part]; return { c, p, y: p.y - c.h / 2 };
+    }).sort((a, b) => a.p.y - b.p.y);
+    for (let i = 0; i < list.length; i++){
+      list[i].y = Math.max(list[i].y, minY, i ? list[i-1].y + list[i-1].c.h + gap : -1e9);
+    }
+    for (let i = list.length - 1; i >= 0; i--){
+      list[i].y = Math.min(list[i].y, (i < list.length - 1 ? list[i+1].y - gap : maxY) - list[i].c.h);
+    }
+    list.forEach(({ c, p, y }) => {
+      const x = Math.min(p.x + lineGap, W - 16 - c.w);
+      c.el.style.opacity = c.op.toFixed(3);
+      c.el.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0)";
+      const ly = y + c.h / 2, elbow = Math.max(p.x + 6, x - 12);
+      c.path.setAttribute("d", "M" + p.x.toFixed(1) + " " + p.y.toFixed(1) + "L" + elbow.toFixed(1) + " " + ly.toFixed(1) + "L" + x.toFixed(1) + " " + ly.toFixed(1));
+      c.path.style.opacity = (c.op * .55).toFixed(3);
+      c.dot.setAttribute("cx", p.x.toFixed(1)); c.dot.setAttribute("cy", p.y.toFixed(1));
+      c.dot.style.opacity = c.op.toFixed(3);
+    });
+  }
+
+  let last = performance.now(), time = 0;
+  const tmpV = new THREE.Vector3();
+
+  function frame(now){
+    const dt = Math.min(.05, (now - last) / 1000); last = now; time += dt;
+    readScroll();
+    const k = reduce ? 1 : 1 - Math.exp(-dt * 5);
+    for (const key in tgt) cur[key] += (tgt[key] - cur[key]) * k;
+
+    if (!dragging){ dragRot += dragVel; dragVel *= reduce ? 0 : .93; }
+    const idle = reduce ? 0 : time * .22;
+    const bob = reduce ? 0 : Math.sin(time * 1.3) * .05;
+    const vis = Math.max(.0001, cur.s * (1 - cur.lineup));
+
+    main.group.position.set(cur.x, cur.y + bob, 0);
+    main.group.scale.setScalar(vis);
+    main.group.rotation.set(.1, cur.spin + idle + dragRot, cur.tilt);
+    main.group.visible = cur.lineup < .995;
+    // desmontar em etapas: tampa sobe, depois o fundo desce, por último líquido e etiquetas
+    const openT = cur.explode * .15 + cur.stage * .85;
+    const lidT = smooth(0, .4, openT), botT = smooth(.35, .7, openT), liqT = smooth(.62, .95, openT);
+    main.top.position.y = lidT * .8;
+    main.top.rotation.z = lidT * .22;
+    main.bottom.position.y = -botT * .8;
+    main.bottom.rotation.z = -botT * .12;
+
+    const fi = clamp(Math.round(cur.flavor), 0, 3);
+    if (fi !== shownFlavor){ main.labelMat.map = labelTex[fi]; shownFlavor = fi; }
+    liquidMat.color.set(FLAVORS[fi].label);
+
+    // gelo orbitando
+    const orbitR = 1.55 - cur.explode * .3;
+    ICE.forEach(c => {
+      const a = c.a + (reduce ? 0 : time * .35);
+      c.m.position.set(cur.x + Math.cos(a) * orbitR * cur.s, cur.y + (c.h + (reduce ? 0 : Math.sin(time + c.p) * .08)) * cur.s, Math.sin(a) * orbitR * cur.s * .7);
+      c.m.scale.setScalar(Math.max(.0001, c.s * cur.s * cur.ice * (1 - cur.lineup)));
+      if (!reduce){ c.m.rotation.x += c.rx * dt; c.m.rotation.y += c.ry * dt; }
+    });
+
+    // efeitos gelados somem junto com a lata principal na linha completa
+    const coldVis = 1 - cur.lineup;
+
+    // 1. vapor: sobe um pouco na tampa e escorre para baixo (ar gelado desce), abrindo e sumindo
+    {
+      const P = vaporGeo.attributes.position.array, Sz = vaporGeo.attributes.aSize.array, Al = vaporGeo.attributes.aAlpha.array, Ro = vaporGeo.attributes.aRot.array;
+      vapor.forEach((p, i) => {
+        if (!reduce){
+          p.life += dt; p.vy -= .2 * dt; p.vx *= 1 - .6 * dt; p.vz *= 1 - .6 * dt;
+          p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; p.rot += p.spin * dt;
+        }
+        if (p.life > p.max) spawnVapor(p, cur.x, cur.y + bob, cur.s);
+        const t = p.life / p.max;
+        P[i*3] = p.x; P[i*3+1] = p.y; P[i*3+2] = p.z;
+        Sz[i] = p.s0 + (p.s1 - p.s0) * Math.sqrt(t);
+        Al[i] = p.peak * Math.min(1, t / .18) * Math.pow(1 - t, 1.4);
+        Ro[i] = p.rot;
+      });
+      vaporGeo.attributes.position.needsUpdate = vaporGeo.attributes.aSize.needsUpdate = vaporGeo.attributes.aAlpha.needsUpdate = vaporGeo.attributes.aRot.needsUpdate = true;
+      vaporMat.uniforms.uOpacity.value = coldVis;
+    }
+
+    // 5. poeira de gelo caindo devagar em volta da lata
+    {
+      const P = dustGeo.attributes.position.array, Sz = dustGeo.attributes.aSize.array, Al = dustGeo.attributes.aAlpha.array;
+      dust.forEach((p, i) => {
+        if (!reduce){ p.y += p.vy * dt; p.phase += dt; }
+        if (p.y < cur.y - 2 * cur.s || Math.abs(p.x - cur.x) > 2.6 * cur.s) spawnDust(p, cur.x, cur.y, cur.s, false);
+        P[i*3] = p.x + Math.sin(p.phase) * p.sway; P[i*3+1] = p.y; P[i*3+2] = p.z;
+        Sz[i] = p.size * cur.s; Al[i] = p.a * (.7 + .3 * Math.sin(p.phase * 2.3));
+      });
+      dustGeo.attributes.position.needsUpdate = dustGeo.attributes.aSize.needsUpdate = dustGeo.attributes.aAlpha.needsUpdate = true;
+      dustMat.uniforms.uOpacity.value = coldVis * cur.ice;
+    }
+
+    // 4. brilhos: tamanho acompanha a escala da lata; piscam pelo tempo
+    glintMat.uniforms.uSizeMul.value = vis;
+    glintMat.uniforms.uTime.value = reduce ? 1.3 : time;
+    glintMat.uniforms.uOpacity.value = coldVis * (1 - cur.explode); // somem quando a lata abre
+
+    // 2. gotas escorrendo
+    updateDrops(main.drops, dt);
+
+    // líquido subindo entre o corpo e a tampa, com bolhas de gás
+    const liqTop = 1.1 + liqT * Math.max(0, lidT * .8 - .14);
+    const liqH = Math.max(.001, liqTop - LIQ_Y0);
+    main.liquid.visible = liqT > .01;
+    main.liquid.scale.set(LIQ_R, liqH, LIQ_R);
+    main.liquid.position.y = LIQ_Y0 + liqH / 2;
+    liquidMat.opacity = .85 * liqT;
+    {
+      const P = bubbleGeo.attributes.position.array, Sz = bubbleGeo.attributes.aSize.array, Al = bubbleGeo.attributes.aAlpha.array;
+      bubbles.forEach((b, i) => {
+        if (!reduce){ b.t += b.v * dt / Math.max(.2, liqH); if (b.t > 1) b.t -= 1; }
+        P[i*3] = b.x + (reduce ? 0 : Math.sin(time * 3 + i) * .008); P[i*3+1] = LIQ_Y0 + b.t * liqH; P[i*3+2] = b.z;
+        Sz[i] = b.size; Al[i] = b.a * Math.min(1, (1 - b.t) * 5);
+      });
+      bubbleGeo.attributes.position.needsUpdate = bubbleGeo.attributes.aSize.needsUpdate = bubbleGeo.attributes.aAlpha.needsUpdate = true;
+      bubbleMat.uniforms.uSizeMul.value = vis;
+      bubbleMat.uniforms.uOpacity.value = liqT * coldVis;
+      main.bubbles.visible = liqT > .01;
+    }
+
+    // etiquetas: aparecem conforme cada peça se solta e seguem a lata na tela
+    updateCallouts(lidT, botT, liqT, vis, liqTop, dt);
+
+    // linha completa
+    if (cur.lineup > .5 && pointerMoved){
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObjects(lineup.map(c => c.group), true)[0];
+      hoverIdx = hit ? hit.object.userData.idx : -1;
+      pointerMoved = false;
+    } else if (cur.lineup <= .5){ hoverIdx = -1; }
+    const active = pickerHover >= 0 ? pickerHover : hoverIdx;
+    pickerLinks.forEach((a,i) => a.classList.toggle("on", i === active));
+    document.body.style.cursor = active >= 0 && pickerHover < 0 ? "pointer" : "";
+
+    const spacing = 1.5 * layout.fit;
+    lineup.forEach((c,i) => {
+      const on = i === active;
+      const sc = Math.max(.0001, layout.fit * cur.lineup * (on ? 1.12 : 1));
+      c.group.scale.setScalar(sc);
+      c.group.visible = cur.lineup > .005;
+      c.group.position.set((i - 1.5) * spacing, layout.lineY + (on ? .18 : 0) + (reduce ? 0 : Math.sin(time * 1.2 + i) * .04), 0);
+      c.group.rotation.set(.08, (reduce ? 0 : time * .4) + i * .5 + dragRot, (i - 1.5) * -.05);
+    });
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener("resize", () => { if (main) computeLayout(); });
+  window.addEventListener("load", () => { if (main) computeLayout(); });
+
+  // carrega as fontes antes de desenhar os rótulos
+  const fontLoads = document.fonts ? Promise.all([
+    document.fonts.load('900 330px "Big Shoulders Display"'),
+    document.fonts.load('800 40px "Big Shoulders Display"'),
+    document.fonts.load('700 64px "Archivo"'),
+    document.fonts.load('500 26px "IBM Plex Mono"')
+  ]) : Promise.resolve();
+  Promise.race([fontLoads, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(build);
+})();
+</script>
+</body>
+</html>
